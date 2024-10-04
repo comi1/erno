@@ -2,74 +2,68 @@
 #        PERMISSIONS         #
 ##############################
 
+#           Admin            #
+givexp:
+  - Management
+removexp:
+  - Management
+say:
+  - Management
+update:
+  - Owner
+lockdown:
+  - Management
+setstatus:
+  - Management
+
 #           Utils            #
 ping:
   - everyone
-
 userinfo:
   - everyone
-
 serverinfo:
   - everyone
-
 id:
   - everyone
-
-avatar: 
+avatar:
   - everyone
 
-#            EXP            #
-
+#            EXP             #
 level:
   - everyone
-  
 leveltop:
   - everyone
 
-################################
-
+##############################
 #         Management         #
-
+##############################
 reload:
   - Management
   - Admin
-
 setprefix:
   - Founder
 
-################################
-
+##############################
 #         Moderation         #
-
+##############################
 clear:
   - Admin
   - Staff
-
 ban:
   - Admin
-
 kick:
   - Admin
   - Moderator
-
 unban:
   - Admin
   - Moderator
-
 mute:
   - Admin
   - Moderator
-
 unmute:
   - Admin
   - Moderator
-
-ban_protected: 
+ban_protected:
   - Staff
-
 kick_protected:
   - Staff
-
-
-
-################################
