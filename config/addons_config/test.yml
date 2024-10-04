@@ -1,0 +1,18 @@
+Embed:
+  author: Testing command
+  authorIcon: "{user-pfp}"
+  title: Testing command
+  description: This is a test command
+  fields:
+    - name: Server Name
+      value: "{guild-name}"
+      inline: true
+    - name: User Mention
+      value: "{user-mention}"
+      inline: true
+    - name: Channel Mention
+      value: "{channel-mention}"
+      inline: true
+  footer: Executed in {guild-name}
+  footerIcon: "{guild-icon}"
+  color: default

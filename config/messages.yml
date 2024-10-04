@@ -1,0 +1,190 @@
+Permission:
+  title: "`❌` | No Perms"
+  description: "> You don't have permission to run this command."
+  color: "error"
+  timestamp: true
+
+Usage:
+  title: "`❌` | Invalid Usage"
+  description: "**Invalid Command Usage:**\n> `{usage}`"
+  color: "error"
+  timestamp: true
+
+
+Ping: 
+  title: "`⏳` | Ping"
+  description: "> Bot latency is: **{latency}ms**"
+  color: "default"
+  timestamp: true
+
+Userinfo:
+  title: "`👤` | User Info"
+  fields:
+    - name: "❯ Username"
+      value: "{user_username}"
+      inline: true
+    - name: "❯ ID"
+      value: "{user_id}"
+      inline: false
+    - name: "❯ Bot"
+      value: "{bot}"
+      inline: false
+    - name: "❯ Joined Discord"
+      value: "{created_at}"
+      inline: false
+    - name: "❯ Level"
+      value: "{level}"
+      inline: true
+    - name: "❯ Exp"
+      value: "{exp}"
+      inline: true
+    - name: "❯ Progress"
+      value: "{progressExp}"
+      inline: true
+  thumbnail: "{user_avatar}"
+  color: "success"
+  timestamp: true
+
+Serverinfo:
+  title: "`🌐` | Server Info"
+  fields:
+    - name: "❯ Server Name"
+      value: "{guild-name}"
+      inline: true
+    - name: "❯ ID"
+      value: "{guild-id}"
+      inline: true
+    - name: "❯ Members"
+      value: "{guild-membercount}"
+      inline: false
+    - name: "❯ Channels"
+      value: "{guild-channelcount}"
+      inline: true
+    - name: "❯ Roles"
+      value: "{guild-rolecount}"
+      inline: true
+    - name: "❯ Owner"
+      value: "{guild-owner} `({guild-ownerid})`"
+      inline: false
+  thumbnail: "{guild-icon}"
+  color: "default"
+  timestamp: true
+
+# Admin
+
+Say:
+  Embed: 
+    title: "`📝` | {guild-name}"
+    description: "> {content}"
+    color: "default"
+    timestamp: true
+  Sent:
+    title: "{user-username}"
+    description: "> Your message has been sent!"
+    color: "default"
+    timestamp: true
+
+# Moderation
+
+Clear:
+  Success:
+    title: "`✅` | Messages Cleared"
+    description: "> {amount} messages cleared by {user-mention} in {channel-mention}"
+    color: "success"
+    timestamp: true
+  Unable_to_clear:
+    title: "`❌` | Unable to Clear"
+    description: "> I couldn't delete the specified number of messages, messages older than 14 days cannot be deleted!"
+    color: "error"
+
+Ban: 
+  Success: 
+    title: "`💢` | Banned"
+    description: "> {user-mention} has been successfully banned by {staff-mention}"
+    color: "success"
+    timestamp: true
+  Higher_Staff:
+    title: "Ban Error"
+    description: "> You are not allowed to ban users with a role higher than yours."
+    color: "error"
+    timestamp: true
+  Staff_Member:
+    title: "Ban Error"
+    description: "> You are not allowed to ban staff members."
+    color: "error"
+    timestamp: true
+
+Kick: 
+  Success: 
+    title: "`💢` | Kicked"
+    description: "> {user-mention} has been successfully kicked by {staff-mention}"
+    color: "success"
+    timestamp: true
+  Higher_Staff:
+    title: "Kick Error"
+    description: "> You are not allowed to kick users with a role higher than yours."
+    color: "error"
+    timestamp: true
+  Staff_Member:
+    title: "Kick Error"
+    description: "> You are not allowed to kick staff members."
+    color: "error"
+    timestamp: true
+
+
+# Management
+
+Prefix:
+  title: "`🌐` | Prefix Set"
+  description: "> The prefix for this server has been set to `{prefix}`."
+  color: "default"
+  footer: "{guild-name}"
+  footerIcon: "{guild-icon}"
+  timestamp: true
+
+# EXP
+
+Leveltop:
+  format: "**{position}: **{user-mention} ❯ `{level}` level ❯ `{exp}` exp"
+  Embed: 
+    title: "❯ Exp Top"
+    description: "{formatedData}"
+    color: "default"
+    timestamp: true
+    footer: "{guild-name}"
+    footerIcon: "{guild-icon}"
+
+Level:
+  NoLevel:
+    title: "{user-username} doesn't have any levels."
+    color: "error"
+  LevelMessage: "Level: {level}\nExp: {exp}\nYou need {neededExp} more exp to levelup!"
+
+# Leveling and Other
+
+Levelup:
+  title: "Level Up!"
+  description: "> {user-mention} has reached level {level}!"
+  color: "default"
+  footer: "{guild-name}"
+  footerIcon: "{guild-icon}"
+  timestamp: true
+
+Id:
+  title: "`🔍` | Id Lookup"
+  color: "default"
+  timestamp: true,
+  footer: "{guild-name}"
+  footerIcon: "{guild-icon}"
+
+Avatar: 
+  title: "`🖼️` | Avatar"
+  description: "> [Click here to view avatar]({user-pfp})"
+  color: "default"
+  image: "{user-pfp}"
+  timestamp: true
+
+
+Welcome: "Welcome to our server {user-username}, you are the #{memberCount} member!"
+Leave: "Goodbye {user-username}, we hope to see you again soon!\nTotal members: {memberCount}"
+

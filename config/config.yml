@@ -1,0 +1,60 @@
+##############################
+#           CONFIG           #
+##############################
+
+token: ""
+license_key: ""
+prefix: '-'
+
+status:
+  [
+    { type: "Watching", name: "{members} members", status: "online" },
+    { type: "Watching", name: "{tickets} tickets", status: "online" },
+    { type: "Watching", name: "{bots} bots", status: "online" },
+  ]
+
+EmbedColors:
+  Default: "#d53370"
+  Error: "#f52c2c"
+  Success: "#25de1f"
+
+##############################
+#      Erno Bot Modules      #
+##############################
+
+Modules: # is Enabled?
+  management: true,
+  admin: true,
+  exp: true,
+  moderation: true,
+  utils: true,
+  addon: true,
+  info: true,
+  fun: true,
+  economy: true,
+  dev: true,
+  owner: true,
+  ticket: true
+
+
+##############################
+#      Channels & Logs       #
+##############################
+
+# Remove value to disable certain log
+# Run command -reload all
+
+#        Join & Leave          #
+Welcome: "：꒰👋꒱﹒welcome"
+Leave: "：꒰🙌꒱﹒goodbye"
+
+
+#         Moderation           #
+MessageDelete: "：꒰👋꒱﹒modlogs"
+MessageUpdate: "：꒰👋꒱﹒modlogs"
+
+
+#        Administrator         #
+ChannelCrete: ""
+ChannelDelete: ""
+ChannelUpdate: ""

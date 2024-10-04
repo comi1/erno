@@ -1,0 +1,75 @@
+##############################
+#        PERMISSIONS         #
+##############################
+
+#           Utils            #
+ping:
+  - everyone
+
+userinfo:
+  - everyone
+
+serverinfo:
+  - everyone
+
+id:
+  - everyone
+
+avatar: 
+  - everyone
+
+#            EXP            #
+
+level:
+  - everyone
+  
+leveltop:
+  - everyone
+
+################################
+
+#         Management         #
+
+reload:
+  - Management
+  - Admin
+
+setprefix:
+  - Founder
+
+################################
+
+#         Moderation         #
+
+clear:
+  - Admin
+  - Staff
+
+ban:
+  - Admin
+
+kick:
+  - Admin
+  - Moderator
+
+unban:
+  - Admin
+  - Moderator
+
+mute:
+  - Admin
+  - Moderator
+
+unmute:
+  - Admin
+  - Moderator
+
+ban_protected: 
+  - Staff
+
+kick_protected:
+  - Staff
+
+
+
+################################

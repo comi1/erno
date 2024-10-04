@@ -1,0 +1,26 @@
+send_dm: false
+Roles:
+  "1291389145863950388":
+    "<:pink_dot:1291388616408436831>" : "Verified"
+  "1291485091297624084":
+    "🌏" : "Asia"
+    "⬆️" : "North America"
+    "⬇️" : "South America"
+    "🦈" : "Oceania"
+    "🩴" : "Africa"
+    "🌍" : "Europe"
+Embeds:
+  Role_Add:
+    author: Reaction Role - Role Added
+    authorIcon: "{user-pfp}"
+    description: "> {user-mention} has added the role {role-name}"
+    color: default
+    footer: "{guild-name}"
+    timestamp: true
+  Role_Remove:
+    author: Reaction Role - Role Removed
+    authorIcon: "{user-pfp}"
+    description: "> {user-mention} has removed the role {role-name}"
+    footer: "{guild-name}"
+    color: default
+    timestamp: true

@@ -1,0 +1,15 @@
+#         Leveling Rewards         #
+Level:
+  1:
+    type: "coins"
+    amount: 100
+  3:
+    type: "role"
+    amount: "Active Member"
+  5:
+    type: "coins"
+    amount: "1000"
+
+# type: coins or role
+# amount: Amount of coins or role_name , role_id
+  

@@ -1,0 +1,13 @@
+permissions:
+  - everyone
+Embeds:
+  Set:
+    title: 🕛 | Reminder Set
+    description: I will remind you in `{time}` !
+    timestamp: true
+    color: default
+  Reminder:
+    title: 🕛 | Reminder Alert
+    description: "Don't forget to: {reminder}"
+    timestamp: true
+    color: default
