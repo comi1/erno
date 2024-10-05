@@ -10,10 +10,17 @@ Usage:
   color: "error"
   timestamp: true
 
+# Utils ....
 
-Ping: 
+Help:
+  title: "`❓` | Help"
+  color: "default"
+  timestamp: true
+  footer: "{guild-name}"
+  footerIcon: "{guild-icon}"
+
+Ping:
   title: "`⏳` | Ping"
-  description: "> Bot latency is: **{latency}ms**"
   color: "default"
   timestamp: true
 
@@ -72,8 +79,16 @@ Serverinfo:
 
 # Admin
 
+FetchInvites:
+  title: "`🔒` | Fetch Server Invites"
+  description: "Server invites have been fetched successfully!"
+  footer: "Total invites fetched: {size}"
+  footerIcon: "{guild-icon}"
+  color: "default"
+  timestamp: true
+
 Say:
-  Embed: 
+  Embed:
     title: "`📝` | {guild-name}"
     description: "> {content}"
     color: "default"
@@ -83,6 +98,24 @@ Say:
     description: "> Your message has been sent!"
     color: "default"
     timestamp: true
+
+XpAdd:
+  title: "Xp Add"
+  description: "> {user-mention} has gained {xp} XP and reached new level: {level}"
+  color: "default"
+  timestamp: true
+
+XpRemove:
+  title: "Xp Remove"
+  description: "> {user-mention} has lost {xp} XP and now is on level: {level}"
+  color: "default"
+  timestamp: true
+
+Embed: 
+  title: "Embed sent successfully!"
+  description: "> Your embed `{embed-name}` has been sent in {channel-mention}"
+  color: "default"
+  timestamp: true
 
 # Moderation
 
@@ -97,8 +130,8 @@ Clear:
     description: "> I couldn't delete the specified number of messages, messages older than 14 days cannot be deleted!"
     color: "error"
 
-Ban: 
-  Success: 
+Ban:
+  Success:
     title: "`💢` | Banned"
     description: "> {user-mention} has been successfully banned by {staff-mention}"
     color: "success"
@@ -114,8 +147,8 @@ Ban:
     color: "error"
     timestamp: true
 
-Kick: 
-  Success: 
+Kick:
+  Success:
     title: "`💢` | Kicked"
     description: "> {user-mention} has been successfully kicked by {staff-mention}"
     color: "success"
@@ -131,7 +164,6 @@ Kick:
     color: "error"
     timestamp: true
 
-
 # Management
 
 Prefix:
@@ -142,11 +174,19 @@ Prefix:
   footerIcon: "{guild-icon}"
   timestamp: true
 
+Setup:
+  title: "Bot Setup"
+  description: "> Bot setup has been completed successfully!"
+  color: "default"
+  timestamp: true
+  footer: "{bot-username}"
+  footerIcon: "{bot-pfp}"
+
 # EXP
 
 Leveltop:
   format: "**{position}: **{user-mention} ❯ `{level}` level ❯ `{exp}` exp"
-  Embed: 
+  Embed:
     title: "❯ Exp Top"
     description: "{formatedData}"
     color: "default"
@@ -159,6 +199,25 @@ Level:
     title: "{user-username} doesn't have any levels."
     color: "error"
   LevelMessage: "Level: {level}\nExp: {exp}\nYou need {neededExp} more exp to levelup!"
+
+# Other
+
+Boosters:
+  Embed:
+    title: "`🩷` | Boosters"
+    description: "{boosters}"
+    color: "default"
+    timestamp: true
+    footer: "{guild-name}"
+  No_Boosters: "There is no active boosters in this server!"
+
+Uptime:
+  title: "Bot Uptime"
+  description: "The bot has been online for **{uptime}**"
+  timestamp: true
+  color: "default"
+  footer: "Erno"
+  footerIcon: "{bot-pfp}"
 
 # Leveling and Other
 
@@ -177,14 +236,12 @@ Id:
   footer: "{guild-name}"
   footerIcon: "{guild-icon}"
 
-Avatar: 
+Avatar:
   title: "`🖼️` | Avatar"
   description: "> [Click here to view avatar]({user-pfp})"
   color: "default"
   image: "{user-pfp}"
   timestamp: true
 
-
 Welcome: "Welcome to our server {user-username}, you are the #{memberCount} member!"
 Leave: "Goodbye {user-username}, we hope to see you again soon!\nTotal members: {memberCount}"
-

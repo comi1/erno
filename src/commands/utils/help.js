@@ -1,118 +1,151 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { StringSelectMenuBuilder, ActionRowBuilder, ComponentType } = require("discord.js");
 const Utility = require("../../../utils/modules/Utility");
+
 
 module.exports = {
     name: 'help',
-    aliases: [],
     async execute(moi, args, client, { type, reply }) {
+        let displayType;
+        if (Utility.config.Help.Type === 'categories') displayType = 'categories';
+        if (Utility.config.Help.Type === 'list') displayType = 'list';
 
-        // Dobijanje prefixa za trenutni guild
-        const prefix = await Utility.prefix(moi.guild);
+        const emojiObject = {
+            admin: '🧰',
+            management: '🛠️',
+            moderation: '📜',
+            utils: '🔍',
+            addon: '🧩',
+            exp: '🧪',
+            other: '🌏',
+            economy: "💰",
+            tickets: "🎫"
+          }          
 
-        const commands = Utility.client.commands;
-        const categories = {};
+        if (!Utility.client || !Utility.client.commands) {
+            return reply(type, moi, {
+                embeds: [Utility.embed({
+                    title: 'Error',
+                    description: 'Commands are not properly loaded.',
+                    color: 0xFF0000,
+                    timestamp: true,
+                })]
+            });
+        }
 
-        commands.forEach(command => {
-            if (!categories[command.category]) categories[command.category] = [];
-            // Dodaj prefix ispred svake komande
-            categories[command.category].push(`${prefix}${command.name} ❯ ${command.description}`);
+        const categories = [];
+
+        Utility.client.commands.forEach(cmd => {
+            if (cmd.category && !categories.includes(cmd.category)) {
+                categories.push(cmd.category);
+            }
         });
+
+        const prefix = await Utility.prefix(moi.guild)
+
+        if (displayType === 'list') {
+            let helpMessage = '';
         
-        const categoryNames = Object.keys(categories);
-        let page = 0;
-
-        const emojis = {
-            'management': '🧑‍💻',
-            'admin': '💢',
-            'exp': '🎚️',
-            'moderation': '🛠️',
-            'utils': '🌐',
-            'addon': "👜",
-            'info': "✨",
-            'fun': "😆",
-            'economy': "💰",
-            'dev': "🤓",
-            'owner': "👑",
-            'ticket': '🎫'
-        };
-
-        reply(type, moi, {
-            embeds: [
-                Utility.embed({
-                    title: `\`${emojis[categoryNames[page]] || '⏳'}\` Help Menu - ${categoryNames[page].charAt(0).toUpperCase() + categoryNames[page].slice(1).toLowerCase()}`,
-                    description: `> ${categories[categoryNames[page]].join('\n> ') || "No commands available."}`,
-                    color: "default",
-                    timestamp: true
-                })
-            ],
-            components: [
-                new ActionRowBuilder().addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('prev')
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('⬅️')
-                        .setDisabled(page === 0),
-                    new ButtonBuilder()
-                        .setCustomId('next')
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('➡️')
-                        .setDisabled(categoryNames.length <= 1)
-                )
-            ]
-        }, true).then(async msg => {
-
-            const collector = msg.createMessageComponentCollector({
-                time: 30000,
+            if (categories.length === 0) {
+                return reply(type, moi, {
+                    embeds: [Utility.embed({
+                        title: 'Help',
+                        description: 'No commands found.',
+                        timestamp: true,
+                    })]
+                }, true);
+            }
+        
+            categories.forEach(category => {
+                helpMessage += `${emojiObject[category]} | **${Utility.capitalizeFirstLetter(category)} Commands:**\n`;
+                Utility.client.commands
+                    .filter(cmd => cmd.category === category)
+                    .forEach(cmd => {
+                        helpMessage += `- **${prefix}${cmd.name}** - ${cmd.description}\n`;
+                    });
+                
+                helpMessage += '\n\n';
             });
-
-            collector.on('collect', async interaction => {
-                if (!interaction.isButton()) return;
-
-                if (interaction.customId === 'prev') {
-                    if (page > 0) {
-                        page--;
+        
+            return reply(type, moi, {
+                embeds: [Utility.embed({
+                    ...Utility.messages.Help,
+                    description: helpMessage,
+                    variables: {
+                        ...Utility.serverVariables(moi.guild),
+                        ...Utility.userVariables(moi.member)
                     }
-                } else if (interaction.customId === 'next') {
-                    if (page < categoryNames.length - 1) {
-                        page++;
-                    }
+                })]
+            }, true);
+        }
+        
+
+if (displayType === 'categories') {
+    const menu = new StringSelectMenuBuilder()
+        .setCustomId('help_category_menu')
+        .setPlaceholder('Select a category')
+        .addOptions(categories.map(category => ({
+            label: `${emojiObject[category]} | ${Utility.capitalizeFirstLetter(category)}`,
+            value: category,
+        })));
+
+    const row = new ActionRowBuilder().addComponents(menu);
+
+    const helpMessage = await reply(type, moi, {
+        embeds: [Utility.embed({
+            ...Utility.messages.Help,
+            description: 'Select a category to see commands!',
+            variables: {
+                ...Utility.serverVariables(moi.guild),
+                ...Utility.userVariables(moi.member)
+             }
+        })],
+        components: [row],
+    }, true);
+
+    const filter = interaction => interaction.user.id === moi.member.user.id && interaction.customId === 'help_category_menu';
+
+    const collector = helpMessage.createMessageComponentCollector({ 
+        filter, 
+        componentType: ComponentType.StringSelect,
+        time: 60000 
+    });
+
+    collector.on('collect', async interaction => {
+        const selectedCategory = interaction.values[0];
+        let commandsInCategory = ''
+        commandsInCategory += `${emojiObject[selectedCategory]} | **${Utility.capitalizeFirstLetter(selectedCategory)} Commands:**\n`
+        commandsInCategory += Utility.client.commands
+            .filter(cmd => cmd.category === selectedCategory)
+            .map(cmd => `- **${prefix}${cmd.name}**: ${cmd.description}`)
+            .join('\n');
+
+        await interaction.update({
+            embeds: [Utility.embed({
+                ...Utility.messages.Help,
+                description: commandsInCategory || 'No commands found in this category.',
+                variables: {
+                   ...Utility.serverVariables(moi.guild),
+                   ...Utility.userVariables(moi.member)
                 }
-
-                const currentCategory = categoryNames[page];
-                const categoryCommands = categories[currentCategory].join('\n> ');
-
-                await interaction.update({
-                    embeds: [
-                        Utility.embed({
-                            title: `\`${emojis[currentCategory] || '⏳'}\` Help Menu - ${currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1).toLowerCase()}`,
-                            description: `> ${categoryCommands || "No commands available."}`,
-                            color: "default",
-                            timestamp: true
-                        })
-                    ],
-                    components: [
-                        new ActionRowBuilder().addComponents(
-                            new ButtonBuilder()
-                                .setCustomId('prev')
-                                .setStyle(ButtonStyle.Secondary)
-                                .setEmoji('⬅️')
-                                .setDisabled(page === 0),
-                            new ButtonBuilder()
-                                .setCustomId('next')
-                                .setStyle(ButtonStyle.Secondary)
-                                .setEmoji('➡️')
-                                .setDisabled(page === categoryNames.length - 1)
-                        )
-                    ]
-                });
-            });
-
-            collector.on('end', () => {
-                msg.edit({ components: [] });
-            });
+            })],
+            components: [row],
         });
+    });
+
+    collector.on('end', async () => {
+        const disabledRow = new ActionRowBuilder().addComponents(
+            menu.setDisabled(true)
+        );
+    
+        await helpMessage.edit({
+            components: [disabledRow]
+        });
+    });    
+}
+
     },
-    description: 'Displays all available commands!',
+    description: 'Display bot commands',
+    usage: 'help || help [command]',
     category: 'utils',
-    options: []
-};
+    aliases: [],
+}

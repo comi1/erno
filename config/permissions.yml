@@ -1,49 +1,33 @@
 ##############################
-#        PERMISSIONS         #
-##############################
-
-#           Admin            #
-givexp:
-  - Management
-removexp:
-  - Management
-say:
-  - Management
-update:
-  - Owner
-lockdown:
-  - Management
-setstatus:
-  - Management
-
-#           Utils            #
-ping:
-  - everyone
-userinfo:
-  - everyone
-serverinfo:
-  - everyone
-id:
-  - everyone
-avatar:
-  - everyone
-
-#            EXP             #
-level:
-  - everyone
-leveltop:
-  - everyone
-
-##############################
 #         Management         #
 ##############################
 reload:
-  - Management
-  - Admin
+  - Owner
 setprefix:
-  - Founder
+  - Owner
+setup: 
+  - Owner
 
 ##############################
+#           Admin            #
+##############################
+
+fetchinvites:
+  - Admin
+givexp:
+  - Admin
+removexp:
+  -Admin
+say:
+  - Admin
+update:
+  - Admin
+setstatus:
+  - Admin
+
+
+##############################
+
 #         Moderation         #
 ##############################
 clear:
@@ -63,7 +47,36 @@ mute:
 unmute:
   - Admin
   - Moderator
-ban_protected:
+
+ban_protected: 
   - Staff
 kick_protected:
   - Staff
+  
+##############################
+#           Utils            #
+##############################
+ping:
+  - everyone
+userinfo:
+  - everyone
+serverinfo:
+  - everyone
+id:
+  - everyone
+avatar: 
+  - everyone
+help:
+  - everyone
+
+##############################
+
+#            EXP            #
+##############################
+level:
+  - everyone
+  
+leveltop:
+  - everyone
+
+##############################

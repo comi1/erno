@@ -96,6 +96,14 @@ module.exports = {
                 })
             ]
         })
+
+        await Utility.updatePunishments(user, {
+            type: 'ban',
+            reason: reason,
+            duration: 0,
+            date: Date.now(),
+            staff: moi.member.user.id
+        })
     },
     aliases: ['b'],
     description: 'Bans a user from the server.',

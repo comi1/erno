@@ -96,6 +96,14 @@ module.exports = {
                 })
             ]
         })
+
+        await Utility.updatePunishments(user, {
+            type: 'kick',
+            reason: reason,
+            duration: 0,
+            date: Date.now(),
+            staff: moi.member.user.id
+        })
     },
     aliases: ['k'],
     description: 'Kicks a user from the server.',

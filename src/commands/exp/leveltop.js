@@ -2,8 +2,6 @@ const Utility = require("../../../utils/modules/Utility");
 
 module.exports = {
     name: 'leveltop',
-    aliases: ['exptop'],
-
     async execute(moi, args, client, { type, reply }) {
 
         const toSort = await Utility.database.findAll('level');
@@ -40,4 +38,6 @@ module.exports = {
     },
     description: 'Displays the top players based on their level !',
     category: 'exp',
+    aliases: ['exptop'],
+    options: []
 }

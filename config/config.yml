@@ -36,6 +36,12 @@ Modules: # is Enabled?
   owner: true,
   ticket: true
 
+##############################
+#      Commands  Config      #
+##############################
+
+Help:
+  Type: "categories"
 
 ##############################
 #      Channels & Logs       #
