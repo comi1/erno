@@ -13,6 +13,7 @@ client.on('ready', async () => {
     Utility.config;
     Utility.messages;
     Utility.permission
+    Utility.createMissingFolders()
     Utility.logger.ready
     await commands(client);
     await events(client);

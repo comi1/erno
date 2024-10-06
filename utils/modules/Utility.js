@@ -1,5 +1,6 @@
 const chalk = require('chalk');
 const { Collection, ActivityType, ChannelType, AttachmentBuilder } = require('discord.js');
+const invitesCache = new Collection();
 const fs = require('fs');
 const yaml = require('js-yaml');
 const Database = require('../database/database');
@@ -16,6 +17,7 @@ let Utility = {
         ApplicationCommands: []
     },
     messages: yaml.load(fs.readFileSync('./config/messages.yml')),
+    embeds: yaml.load(fs.readFileSync('./config/embeds.yml')),
     config: yaml.load(fs.readFileSync('./config/config.yml')),
     permission: yaml.load(fs.readFileSync('./config/permissions.yml')),
     rewards: yaml.load(fs.readFileSync('./config/rewards.yml')),
@@ -36,6 +38,58 @@ let Utility = {
         console.log(chalk.hex('#4995ec').bold('-----------------------------------------------------------------------------------------------'))
     },
     embed: embed,
+    updateInvites: async function updateInvites(guild) {
+        try {
+            const invites = await guild.invites.fetch();
+            invitesCache.set(guild.id, invites);
+            return {
+                invites: invitesCache.size
+            }
+        } catch (error) {
+            console.error(`Failed to update invites for guild ${guild.id}:`, error);
+        }
+    },
+
+    getValidInvites: async function getValidInvites(guild) {
+        const invites = await guild.invites.fetch();
+        return invites.map(i => ({
+            code: i.code,
+            channel: i.channel.id,
+            uses: i.uses ? i.uses : 0,
+            inviter: i.inviter ? i.inviter.id : 'Unknown'
+        }));
+    },
+
+    getUsedInvite: async function getInviteData(member, client) {
+        const newInvites = await member.guild.invites.fetch();
+        const oldInvites = invitesCache.get(member.guild.id);
+
+        if (!oldInvites || oldInvites.size === 0) {
+            console.log('Old invite data not found.');
+            return null;
+        }
+
+        const usedInvite = newInvites.find(inv => {
+            const oldInvite = oldInvites.find(old => old.code === inv.code);
+            return oldInvite;
+        });
+
+        if (usedInvite) {
+            const inviter = await client.users.fetch(usedInvite.inviter.id);
+            return {
+                Inviter: inviter ? inviter.id : 'Unknown',
+                InviteUses: usedInvite.uses,
+                InviteCode: usedInvite.code,
+            };
+        } else {
+            console.log('No new invites found.');
+            return null;
+        }
+    },
+    capitalizeFirstLetter: function capitalizeFirstLetter(string) {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    },
     botstatus: updateStatus,
     getUser: async function (messageOrInteraction, type, user) {
         if (type === 'message') {
@@ -413,12 +467,12 @@ let Utility = {
     createLevelCard: async function createWelcomeCanvas(username, avatarURL, levelMessage, progressString) {
         const backgroundImagePath = path.join(__dirname, '../../src/assets/level.png');
         const background = await loadImage(backgroundImagePath);
-    
+
         const canvas = createCanvas(background.width, background.height);
         const ctx = canvas.getContext('2d');
-    
+
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    
+
         const positions = {
             avatar: {
                 x: 129,
@@ -436,10 +490,10 @@ let Utility = {
             },
             progress: {
                 x: 401,
-                y: 333 
+                y: 333
             }
         };
-    
+
         const avatar = await loadImage(avatarURL);
         ctx.save();
         ctx.beginPath();
@@ -448,18 +502,18 @@ let Utility = {
         ctx.clip();
         ctx.drawImage(avatar, positions.avatar.x, positions.avatar.y, positions.avatar.size, positions.avatar.size);
         ctx.restore();
-    
+
         ctx.fillStyle = '#ffffff';
         let fontSize = 40;
         ctx.font = `bold ${fontSize}px Arial`;
-    
+
         while (ctx.measureText(username).width > positions.username.maxWidth && fontSize > 10) {
             fontSize -= 2;
             ctx.font = `bold ${fontSize}px Arial`;
         }
-    
+
         ctx.fillText(username, positions.username.x, positions.username.y);
-    
+
         fontSize = 30;
         ctx.font = `${fontSize}px Arial`;
         ctx.fillText(levelMessage, positions.levelMessage.x, positions.levelMessage.y);
@@ -467,7 +521,7 @@ let Utility = {
         fontSize = 19;
         ctx.font = `${fontSize}px Arial`
         ctx.fillText(progressString, positions.progress.x, positions.progress.y);
-    
+
         return new AttachmentBuilder(canvas.toBuffer(), { name: `${username}_level-image.png` });
     },
 
@@ -489,6 +543,114 @@ let Utility = {
             console.log(chalk.hex('#ef8b81').bold('[ Module ]') + chalk.hex('#ef8b81').bold(' [ Found Channel ]') + chalk.hex('#ef8b81').bold(` Channel not found, missing channel: ${channel}`));
             return;
         }
+    },
+    updatePunishments: async function (user, data) {
+        const hasPunishment = await new Database().findOne('punishements', { id: user.id });
+        if (!hasPunishment) {
+            await new Database().insert('punishements', { id: user.id, punishments: JSON.stringify([data]) });
+        } else {
+            const allPunishments = JSON.parse(hasPunishment.punishments || []);
+            allPunishments.push(data);
+            await new Database().update('punishements', { punishments: JSON.stringify(allPunishments) }, { id: user.id });
+        }
+    },
+    createMissingFolders: function () {
+        const folders = ['./utils/transcripts', './addons', './config/addons_config'];
+        folders.forEach((folder) => {
+            if (!fs.existsSync(folder)) {
+                try {
+                    fs.mkdirSync(folder);
+                } catch (err) {
+                    Utility.logMessage('error', `[ Creating Folder Error ] ${err}`)
+                }
+            }
+        });
+    },
+    setupBot: async function (guild) {
+        try {
+            const permissions = await Utility.permission;
+            const existingRoles = guild.roles.cache;
+
+            const rolesToCreate = new Set();
+
+            Object.values(permissions).forEach(roleList => {
+                if (Array.isArray(roleList)) {
+                    roleList.forEach(role => {
+                        if (role !== 'everyone' && role !== '@everyone') {
+                            rolesToCreate.add(role);
+                        }
+                    });
+                }
+            });
+
+            rolesToCreate.forEach(async roleName => {
+                const existingRole = existingRoles.find(r => r.name === roleName) || existingRoles.find(r => r.id === roleName);
+
+                if (!existingRole) {
+                    await guild.roles.create({
+                        name: roleName,
+                        reason: `Auto-created role for permissions: ${roleName}`
+                    })
+                }
+            });
+        } catch (error) {
+            console.error('Error setting up roles:', error);
+        }
+    },
+    replaceVariables: function (text, variables) {
+        if (!text || !variables || typeof text !== 'string') {
+            return text;
+        }
+
+        for (const [key, value] of Object.entries(variables)) {
+            text = text.replace(new RegExp(`{${key}}`, 'g'), value);
+        }
+
+        return text;
+    },
+    fetchChannel: function fetchChannel(moi, type, args) {
+        let channel;
+
+        if (type === 'interaction') {
+            channel = moi.options.getChannel('channel');
+        } else if (type === 'message') {
+            channel = moi.mentions?.channels.first() || Utility.findChannel(moi.guild, args);
+        } else {
+            channel = moi.channel;
+        }
+
+        return channel;
+    },
+    waitForReact: async function(message, user, emojis, time) {
+        if(!time) time == '1m'
+        return new Promise((resolve) => {
+            const collector = message.createReactionCollector({
+                filter: (reaction, reactingUser) => {
+                    return emojis.includes(reaction.emoji.name) && !reactingUser.bot;
+                },
+                time: ms(time) 
+            });
+
+            collector.on('collect', (reaction, reactingUser) => {
+                if (reactingUser.id === user.id) {
+                    reaction.users.remove(user.id);
+                    resolve({user: user, emoji: reaction.emoji.name});
+                }
+            });
+
+            collector.on('end', () => {
+                resolve(null);
+            });
+        });
+    },
+    waitForResponse: function (userid, channel) {
+        return new Promise((resolve, reject) => {
+            channel.awaitMessages({ filter: m => m.author.id == userid, max: 1 })
+                .then(msgs => {
+                    resolve(msgs.first());
+                })
+                .catch(reject);
+        });
     }
 }
 
@@ -532,13 +694,23 @@ function prepareTable() {
         status: 'TEXT'
     });
 
+    new Database().createTable('punishements', {
+        id: 'TEXT PRIMARY KEY',
+        punishements: "JSON"
+    });
+
+    new Database().createTable('invites', {
+        id: 'TEXT PRIMARY KEY',
+        invites: "JSON"
+    })
+
     Utility.logMessage('info', '[ Erno ] Database tables created successfully.')
 }
 
 
 async function updateStatus(client, status) {
     let tt;
-    
+
     // Default activity type based on input
     switch (status.type?.toLowerCase()) {
         case "playing":
@@ -631,7 +803,9 @@ async function updateStatus(client, status) {
 async function status(client, statuses) {
     let index = 0;
 
-    await updateStatus(client, statuses[index]);
+    setTimeout(async () => {
+        await updateStatus(client, statuses[index]);
+    }, 3000);
 
     setInterval(async () => {
         index = (index + 1) % statuses.length;
