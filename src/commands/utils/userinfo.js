@@ -7,7 +7,7 @@ module.exports = {
 
         const user = await Utility.getUser(moi, type, args[0]) || moi.member.user;
         const userLevel = await Utility.database.findOne('level', { id: user.id });
-        let levelInfo = userLevel ? { exp, level, next_level_exp } = userLevel : { exp: 0, level:0, next_level_exp:0 }
+        let levelInfo = userLevel ? { exp, level, next_level_exp } = userLevel : { exp: 0, level:0, next_level_exp: 0 }
         reply(type, moi, {
             embeds: [
                 Utility.embed({
@@ -36,5 +36,6 @@ module.exports = {
             type: 6,
             required: true
         }
-    ]
+    ],
+    cooldown: Utility.cooldown.userinfo
 }

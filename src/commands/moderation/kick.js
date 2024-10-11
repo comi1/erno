@@ -121,5 +121,6 @@ module.exports = {
             type: 3,
             required: false
         }
-    ]
+    ],
+    cooldown: Utility.cooldown.kick
 }

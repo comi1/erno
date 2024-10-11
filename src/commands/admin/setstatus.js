@@ -81,5 +81,6 @@ module.exports = {
     ],
     usage: 'setstatus <status> <activity type> <status> || setstatus online testing watching',
     aliases: ['sstatus'],
-    category: 'admin'
+    category: 'admin',
+    cooldown: Utility.cooldown.setstatus
 }

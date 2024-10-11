@@ -1,0 +1,39 @@
+Example:
+  content: "{user-mention} has sent this message !"
+  title: "Example Embed"
+  description: "Example Description"
+  url: "https://www.google.com"
+  color: 'default'
+  image: "{bot-pfp}"
+  thumbnail: "{guild-icon}"
+  footer: "Sent by: {user-username}"
+  footerIcon: "{user-pfp}"
+
+Rules:
+  title: "Server Rules"
+  description: |-
+    1. **Be respectful** to all members and staff.
+    2. **No spamming** in channels or DMs.
+    3. **Use appropriate channels** for different topics.
+    4. **No hate speech or discrimination** of any kind.
+    5. **Follow Discord's Terms of Service** and Community Guidelines.
+    6. **Keep discussions in English** for clarity.
+    7. **Do not share personal information** without consent.
+    8. **No advertising** or self-promotion without permission.
+    9. **Report any issues** to the staff immediately.
+    10. **Listen to the moderators** and follow their instructions.
+    11. **Keep content SFW** (Safe For Work) at all times.
+    12. **Use the support channels** for help, not general chat.
+    13. **No trolling or harassment** of any kind.
+    14. **Be patient** while waiting for support.
+    15. **Enjoy your stay** and make the most of your experience!
+
+  url: "https://discord.gg/wgMabfxZ4t"
+  color: 'default'
+  timestamp: true
+  thumbnail: "{guild-icon}"
+  footer: "Thank you for following the rules!"
+  footerIcon: "{user-pfp}"
+
+
+# All variables are available in the Content section <3

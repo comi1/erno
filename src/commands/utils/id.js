@@ -90,5 +90,6 @@ module.exports = {
             type: 3, // STRING type
             required: true,
         }
-    ]
+    ],
+    cooldown: Utility.cooldown.id
 };

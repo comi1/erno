@@ -1,0 +1,49 @@
+# Do not delete properties
+# To disable, type: "0s"
+
+# Admin
+embed: 5s
+fetchinvites: 5s
+givexp: 10s
+removexp: 10s
+say: 10s
+setstatus: 10s
+update: 10s
+
+# Exp
+level: 5s
+leveltop: 5s
+
+# Management
+reload: 10s
+setprefix: 10s
+setup: 10s
+
+# Moderation
+ban: 5s
+kick: 5s
+forceban: 5s
+history: 5s
+clear: 5s
+
+# Other
+boosters: 5s
+uptime: 5s
+
+# Tickets
+new: 5s
+ticketstats: 5s
+close: 5s
+
+# Utils
+help: 5s
+avatar: 5s
+serverinfo: 5s
+userinfo: 5s
+id: 5s
+ping: 5s
+
+
+
+
+

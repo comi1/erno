@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const { Collection, ActivityType, ChannelType, AttachmentBuilder } = require('discord.js');
-const invitesCache = new Collection();
+const invitesCache = new Map();
+const InvitesTracker = require('@androz2091/discord-invites-tracker');
 const fs = require('fs');
 const yaml = require('js-yaml');
 const Database = require('../database/database');
@@ -21,6 +22,7 @@ let Utility = {
     config: yaml.load(fs.readFileSync('./config/config.yml')),
     permission: yaml.load(fs.readFileSync('./config/permissions.yml')),
     rewards: yaml.load(fs.readFileSync('./config/rewards.yml')),
+    cooldown: yaml.load(fs.readFileSync('./config/cooldowns.yml')),
     AddonConfig: addonConfig,
     database: new Database(),
     chalk: chalk,
@@ -40,50 +42,27 @@ let Utility = {
     embed: embed,
     updateInvites: async function updateInvites(guild) {
         try {
+            invitesCache.clear();
             const invites = await guild.invites.fetch();
             invitesCache.set(guild.id, invites);
-            return {
-                invites: invitesCache.size
-            }
+            return { invites: invites.size };
         } catch (error) {
-            console.error(`Failed to update invites for guild ${guild.id}:`, error);
+            Utility.logMessage('error', `[ Invites Fetch Error ] Could not fetch invites for guild ${guild.id}`);
         }
     },
-
     getValidInvites: async function getValidInvites(guild) {
-        const invites = await guild.invites.fetch();
-        return invites.map(i => ({
-            code: i.code,
-            channel: i.channel.id,
-            uses: i.uses ? i.uses : 0,
-            inviter: i.inviter ? i.inviter.id : 'Unknown'
-        }));
-    },
+        try {
+            const invites = await guild.invites.fetch();
 
-    getUsedInvite: async function getInviteData(member, client) {
-        const newInvites = await member.guild.invites.fetch();
-        const oldInvites = invitesCache.get(member.guild.id);
-
-        if (!oldInvites || oldInvites.size === 0) {
-            console.log('Old invite data not found.');
-            return null;
-        }
-
-        const usedInvite = newInvites.find(inv => {
-            const oldInvite = oldInvites.find(old => old.code === inv.code);
-            return oldInvite;
-        });
-
-        if (usedInvite) {
-            const inviter = await client.users.fetch(usedInvite.inviter.id);
-            return {
-                Inviter: inviter ? inviter.id : 'Unknown',
-                InviteUses: usedInvite.uses,
-                InviteCode: usedInvite.code,
-            };
-        } else {
-            console.log('No new invites found.');
-            return null;
+            return invites.map(i => ({
+                code: i.code,
+                channel: i.channel ? i.channel.id : 'Unknown',
+                uses: i.uses ? i.uses : 0,
+                inviter: i.inviter ? i.inviter.id : 'Unknown'
+            }));
+        } catch (error) {
+            console.error(`Error fetching valid invites for guild ${guild.id}:`, error);
+            return [];
         }
     },
     capitalizeFirstLetter: function capitalizeFirstLetter(string) {
@@ -525,6 +504,48 @@ let Utility = {
         return new AttachmentBuilder(canvas.toBuffer(), { name: `${username}_level-image.png` });
     },
 
+    createCaptcha: async function captchaCreate(length = 5) {
+        if (length < 5) {
+            throw new Error("Captcha cannot be less than 5 characters");
+        }
+
+        const width = 350;
+        const height = 100;
+        const canvas = createCanvas(width, height);
+        const ctx = canvas.getContext('2d');
+
+        // Postavljamo pozadinsku boju na Discord boju
+        ctx.fillStyle = '#2f3031';
+        ctx.fillRect(0, 0, width, height);
+
+        // Postavljamo boju teksta na belu
+        ctx.font = '15px Arial';
+        ctx.fillStyle = '#ffffff';
+
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let captchaText = '';
+        for (let i = 0; i < length; i++) {
+            const character = characters.charAt(Math.floor(Math.random() * characters.length));
+            captchaText += character;
+            ctx.fillText(character, 15 + i * 40, 65); // Povećan razmak zbog većeg fonta
+        }
+
+        // Dodajemo nasumične linije preko CAPTCHA koda
+        for (let i = 0; i < 5; i++) {
+            ctx.strokeStyle = '#ffffff'; // Boja linija je bela
+            ctx.lineWidth = 2; // Debljina linije
+            ctx.beginPath();
+            ctx.moveTo(Math.random() * width, Math.random() * height); // Nasumična početna tačka
+            ctx.lineTo(Math.random() * width, Math.random() * height); // Nasumična krajnja tačka
+            ctx.stroke();
+        }
+
+        return {
+            buffer: canvas.toBuffer(),
+            text: captchaText
+        };
+    },
+
     findChannel: function foundChannel(guild, channel) {
         if (!guild || typeof guild !== 'object') {
             console.log(chalk.hex('#ef8b81').bold('[ Module ]') + chalk.hex('#ef8b81').bold(' [ Found Channel ]') + chalk.hex('#ef8b81').bold(' Invalid guild provided.'));
@@ -545,13 +566,22 @@ let Utility = {
         }
     },
     updatePunishments: async function (user, data) {
-        const hasPunishment = await new Database().findOne('punishements', { id: user.id });
+        const hasPunishment = await new Database().findOne('punishments', { id: user.id });
+
         if (!hasPunishment) {
-            await new Database().insert('punishements', { id: user.id, punishments: JSON.stringify([data]) });
+            await new Database().insert('punishments', { id: user.id, punishments: JSON.stringify([data]) });
         } else {
-            const allPunishments = JSON.parse(hasPunishment.punishments || []);
+            let allPunishments;
+            try {
+                allPunishments = JSON.parse(hasPunishment.punishments || '[]');
+            } catch (error) {
+                console.error(`Error parsing punishments for user ${user.id}:`, error);
+                allPunishments = [];
+            }
+
+
             allPunishments.push(data);
-            await new Database().update('punishements', { punishments: JSON.stringify(allPunishments) }, { id: user.id });
+            await new Database().update('punishments', { punishments: JSON.stringify(allPunishments) }, { id: user.id });
         }
     },
     createMissingFolders: function () {
@@ -621,20 +651,20 @@ let Utility = {
 
         return channel;
     },
-    waitForReact: async function(message, user, emojis, time) {
-        if(!time) time == '1m'
+    waitForReact: async function (message, user, emojis, time) {
+        if (!time) time == '1m'
         return new Promise((resolve) => {
             const collector = message.createReactionCollector({
                 filter: (reaction, reactingUser) => {
                     return emojis.includes(reaction.emoji.name) && !reactingUser.bot;
                 },
-                time: ms(time) 
+                time: ms(time)
             });
 
             collector.on('collect', (reaction, reactingUser) => {
                 if (reactingUser.id === user.id) {
                     reaction.users.remove(user.id);
-                    resolve({user: user, emoji: reaction.emoji.name});
+                    resolve({ user: user, emoji: reaction.emoji.name });
                 }
             });
 
@@ -651,7 +681,182 @@ let Utility = {
                 })
                 .catch(reject);
         });
-    }
+    },
+    checkForAdvertisement: function (message) {
+        const AdvertisementConfig = Utility.config.Antilink;
+        if (!AdvertisementConfig.enabled) return false;
+        if (message.author.bot) return;
+
+        if (AdvertisementConfig.whitelist_channels.includes(message.channel.id) || AdvertisementConfig.whitelist_channels.includes(message.channel.name)) return false;
+        if (AdvertisementConfig.whitelist_users.includes(message.author.id) || AdvertisementConfig.whitelist_users.includes(message.author.username)) return false;
+
+        if (Utility.checkPerms(message.member, message.guild, AdvertisementConfig.whitelist_roles)) return false;
+
+        const foundLink = message.content.match(/(?:https?:\/\/)?(?:www\.)?(discord\.gg|discordapp\.com\/invite|[a-zA-Z0-9\-]+\.[a-zA-Z]{2,})/g);
+
+        if (foundLink) {
+            const isWhitelisted = foundLink.some(link => {
+                return AdvertisementConfig.whitelisted_domains.some(domain => link.includes(domain));
+            });
+            if (isWhitelisted) return false;
+        }
+        return foundLink ? true : false;
+    },
+    generateInviteLink: function (guild, permissions) {
+        return guild.channels.cache.find(c => c.permissionsFor(guild.me).has(permissions))?.createInvite({
+            maxAge: 0,
+            maxUses: 0,
+            temporary: false,
+            reason: 'Automatically generated invite for the bot'
+        }) || null;
+    },
+    getPunishments: async function (user) {
+        const hasPunishment = await new Database().findOne('punishments', { id: user.id });
+        if (!hasPunishment) return [];
+        try {
+            return JSON.parse(hasPunishment.punishments || '[]');
+        } catch (error) {
+            return [];
+        }
+    },
+    modules: function modules() {
+        ['Verification', 'JoinRoles'].forEach(module => {
+            const isActive = Utility.config[module]?.enabled;
+            if (isActive) {
+                return Utility.logMessage('info', `[ Module ] [ ${module} ] is active`);
+            } else {
+                Utility.logMessage('info', `[ Module ] [ ${module} ] is disabled`);
+            }
+
+        })
+    },
+    createPath: function createPath(folder, file, config) {
+        if (folder && !fs.existsSync(`./config/addons_config/${folder}`)) {
+            fs.mkdirSync(`./config/addons_config/${folder}`);
+        }
+        const path = new Utility.AddonConfig(`./config/addons_config/${folder ? `${folder}/${file}` : `${file}`}`, config);
+        return path;
+    },
+    formatUserTime: function parseMilliseconds(ms) {
+        const seconds = Math.floor((ms / 1000) % 60);
+        const minutes = Math.floor((ms / (1000 * 60)) % 60);
+        const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+        const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+
+        const parts = [];
+
+        if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+        if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
+        if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
+        if (seconds > 0) parts.push(`${seconds} second${seconds !== 1 ? 's' : ''}`);
+
+        return parts.length > 0 ? parts.join(', ') : '0 seconds';
+    },
+
+    ticketTranscript: async function transcript(channel) {
+        const messages = await channel.messages.fetch({ limit: 100 });
+        let transcript = `
+        <html>
+            <head>
+                <style>
+                    body {
+                        background-color: #23272a; /* Tamna pozadina */
+                        color: #ffffff; /* Svetla boja teksta */
+                        font-family: Arial, sans-serif; /* Font */
+                        margin: 0;
+                        padding: 20px; /* Razmak oko sadržaja */
+                    }
+                    a {
+                        color: #0097C8; /* Tamnija nijansa plave boje za linkove */
+                        text-decoration: none; /* Bez donje crte */
+                    }
+                    a:hover {
+                        text-decoration: underline; /* Donja crta kada je link na hover */
+                    }
+                    blockquote {
+                        background: #2f3136; /* Pozadina za blockquote */
+                        padding: 5px 10px; /* Razmak unutar blockquote-a */
+                        border-left: 4px solid #0097C8; /* Levo poravnanje */
+                        margin: 5px 0; /* Razmak između blockquote-a i drugih elemenata */
+                    }
+                </style>
+            </head>
+            <body>
+    `;
+    
+        function parseFormatting(text) {
+            return text
+                .replace(/`([^`]+)`/g, '<code>$1</code>')                          // inline code
+                .replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>')               // bold
+                .replace(/\*([^\*]+)\*/g, '<em>$1</em>')                           // italic
+                .replace(/__([^\_]+)__/g, '<u>$1</u>')                             // underline
+                .replace(/~~([^~]+)~~/g, '<del>$1</del>')                          // strikethrough
+                .replace(/> (.+)/g, '<blockquote>$1</blockquote>')                 // blockquote
+                .replace(/\[(.+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2">$1</a>') // links
+                .replace(/<@!?(\d+)>/g, '<span style="color: #00AFF4;">@$1</span>') // mentions
+                .replace(/\n/g, '<br>');                                            // newlines
+        }
+    
+        messages.reverse().forEach(message => {
+            const author = message.author;
+            const userColor = message.member ? message.member.displayHexColor : '#ffffff';
+            const timestamp = message.createdAt.toLocaleString();
+            const avatarUrl = author.displayAvatarURL();
+    
+            transcript += `
+                <div style="display: flex; margin-bottom: 10px; align-items: flex-start;">
+                    <img src="${avatarUrl}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                    <div>
+                        <span style="color:${userColor}; font-weight: bold;">${author.username} (${author.id})</span>
+                        <span style="color: #72767d; font-size: 12px;">[${timestamp}]</span>
+                        <div style="background-color: transparent; border: none; padding: 0;">${parseFormatting(message.content)}</div>
+                    </div>
+                </div>
+            `;
+    
+            if (message.embeds.length > 0) {
+                message.embeds.forEach(embed => {
+                    transcript += `
+                        <div style="border-left: 4px solid ${embed.color ? `#${embed.color.toString(16)}` : '#00ff00'}; background-color: #2f3136; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                            ${embed.title ? `<strong style="font-size: 16px;">${parseFormatting(embed.title)}</strong><br>` : ''}
+                            ${embed.description ? `<p>${parseFormatting(embed.description)}</p>` : ''}
+                            ${embed.fields.map(field => `<strong>${parseFormatting(field.name)}</strong>: ${parseFormatting(field.value)}<br>`).join('')}
+                            ${embed.image ? `<img src="${embed.image.url}" alt="Embed Image" style="max-width:400px;"><br>` : ''}
+                        </div>
+                    `;
+                });
+            }
+    
+            if (message.attachments.size > 0) {
+                message.attachments.forEach(attachment => {
+                    if (attachment.contentType.startsWith('image/')) {
+                        transcript += `<img src="${attachment.url}" alt="User Image" style="max-width:400px;"><br>\n`;
+                    } else {
+                        transcript += `<a href="${attachment.url}">Download File</a><br>\n`;
+                    }
+                });
+            }
+    
+            transcript += '<hr>\n';
+        });
+    
+        transcript += `
+                </body>
+            </html>
+        `;
+    
+        try {
+            fs.writeFileSync(`./utils/transcripts/${channel.id}-transcript.html`, transcript);
+        } catch (error) {
+            Utility.logMessage('error', `[ Transcirpts ] I was unable to save transcript for: ${channel.name} for: ${error}`)
+        }
+    },
+    
+    parseMentionsAndLinks: function(content) {
+        return content
+            .replace(/<@!?(\d+)>/g, '<span style="color: #00AFF4;">@$1</span>') // Mentions
+            .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" style="color: #00AFF4;">$1</a>'); // Links
+    },
 }
 
 module.exports = Utility;
@@ -694,14 +899,29 @@ function prepareTable() {
         status: 'TEXT'
     });
 
-    new Database().createTable('punishements', {
+    new Database().createTable('punishments', {
         id: 'TEXT PRIMARY KEY',
-        punishements: "JSON"
+        punishments: "JSON"
     });
 
     new Database().createTable('invites', {
         id: 'TEXT PRIMARY KEY',
         invites: "JSON"
+    })
+
+    new Database().createTable('tickets', {
+        id: 'TEXT PRIMARY KEY',
+        guild: "TEXT",
+        creator: "TEXT",
+        staff: "JSON",
+        reason: "TEXT",
+        created: "TEXT",
+        closed: "TEXT",
+    })
+
+    new Database().createTable('cooldowns', {
+        id: 'TEXT PRIMARY KEY',
+        time: "INTEGER"
     })
 
     Utility.logMessage('info', '[ Erno ] Database tables created successfully.')

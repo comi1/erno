@@ -24,16 +24,19 @@ update:
   - Admin
 setstatus:
   - Admin
+embed:
+  - Admin
 
 
 ##############################
-
 #         Moderation         #
 ##############################
 clear:
   - Admin
   - Staff
 ban:
+  - Admin
+forceban:
   - Admin
 kick:
   - Admin

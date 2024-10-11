@@ -24,7 +24,8 @@ module.exports = {
     category: 'other',
     usage: "uptime",
     aliases: ['botuptime', 'bot-uptime'],
-    options: []
+    options: [],
+    cooldown: Utility.cooldown.uptime
 }
 
 function formatUptime (uptime) {

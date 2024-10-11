@@ -44,5 +44,6 @@ module.exports = {
     usage: "boosters",
     category: 'other',
     aliases: ['boost'],
-    options: []
+    options: [],
+    cooldown: Utility.cooldown.boosters
 }

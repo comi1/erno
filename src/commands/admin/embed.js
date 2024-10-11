@@ -88,5 +88,6 @@ module.exports = {
                 value: embed
             }))
         }
-    ]
+    ],
+    cooldown: Utility.cooldown.embed
 };

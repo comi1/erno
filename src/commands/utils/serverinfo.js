@@ -17,5 +17,6 @@ module.exports = {
     },
     description: "Displays information about the current server.",
     category: 'utils',
-    options: []
+    options: [],
+    cooldown: Utility.cooldown.serverinfo
 }

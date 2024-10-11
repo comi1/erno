@@ -48,5 +48,6 @@ module.exports = {
             type: 3,
             required: true,
         }
-    ]
+    ],
+    cooldown: Utility.cooldown.setprefix
 }

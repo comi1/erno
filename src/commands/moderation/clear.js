@@ -66,5 +66,6 @@ module.exports = {
             type: 4,
             required: true,
         },
-    ]
+    ],
+    cooldown: Utility.cooldown.clear
 }

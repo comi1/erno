@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const { Collection } = require('discord.js');
-const fs = require('fs')
+const fs = require('fs');
+const Utility = require('../modules/Utility');
 module.exports = async (client) => {
 
     const fs = require('fs');

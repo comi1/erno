@@ -1,0 +1,47 @@
+channels:
+  - youtube_channel_id: UC9ocwnNOrNeF9JE97KlmJqQ
+    discord_notification_channel: ：꒰📢꒱﹒uploads
+    message: |-
+      **{author}** uploaded a new video!
+      > *{title}* [Link]({link})
+    mention_roles:
+      - Member
+    discord_user: none
+    button:
+      name: Watch!
+    embed:
+      title: "`🩷` | New Video"
+      description: |-
+        > **{author}** uploaded a new video!
+        > *{title}*
+      color: default
+      timestamp: true
+      image: "{thumbnail}"
+  - youtube_channel_id: UC1nzmHVJpZlsRakcBbbBudg
+    discord_notification_channel: ：꒰📢꒱﹒uploads
+    message: |-
+      **{author}** uploaded a new video!
+      > *{title}* [Link]({link})
+    mention_roles:
+      - Member
+    discord_user: none
+    button:
+      name: Watch!
+    embed:
+      title: "`🩷` | New Video"
+      description: |-
+        > **{author}** uploaded a new video!
+        > *{title}*
+      color: default
+      timestamp: true
+      image: "{thumbnail}"
+command:
+  permission:
+    - Admin
+  name: youtubelist
+  description: List all active channels
+  category: addon
+  usage: youtubelist
+  aliases:
+    - youtube
+  options: []

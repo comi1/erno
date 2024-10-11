@@ -39,5 +39,6 @@ module.exports = {
     description: 'Displays the top players based on their level !',
     category: 'exp',
     aliases: ['exptop'],
-    options: []
+    options: [],
+    cooldown: Utility.cooldown.leveltop
 }

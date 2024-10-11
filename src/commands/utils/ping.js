@@ -48,5 +48,6 @@ module.exports = {
     },
     description: 'Check the bot\'s latency.',
     category: 'utils',
-    options: []
+    options: [],
+    cooldown: Utility.cooldown.ping
 };

@@ -1,0 +1,45 @@
+Permissions:
+  Add:
+    - everyone
+  Remove:
+    - everyone
+  List:
+    - everyone
+Only_My_Notes: false
+Embeds:
+  Add:
+    title: ✏️ | Note Created
+    description: Note has been created successfully!
+    color: default
+    timestamp: true
+  Remove:
+    title: 🗑️ | Note Removed
+    description: Note has been removed successfully!
+    color: default
+    timestamp: true
+  List:
+    title: 📜| Notes List
+    description: "Here are your notes:"
+    color: default
+    timestamp: true
+  Only_My_Notes:
+    title: ❌ | Only My Notes
+    description: Only my notes settings enabled, you can view only notes that
+      belongs to you !
+    color: default
+    timestamp: true
+  No_User_Notes:
+    title: ❌ | No User Notes
+    description: You don't have any notes yet !
+    color: default
+    timestamp: true
+  Note_Exists:
+    title: ❌ | Note Exists
+    description: The note `{notename}` already exists!
+    color: default
+    timestamp: true
+  Note_Not_Exists:
+    title: ❌ | Note Doesn't Exist
+    description: This note does not exist!
+    color: default
+    timestamp: true

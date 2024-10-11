@@ -29,9 +29,6 @@ module.exports = {
                 })
             ]
         }, true);
-
-
-
     },
     description: "Get the user avatar!",
     usage: "avatar <user>",
@@ -44,5 +41,6 @@ module.exports = {
             description: "The user whose avatar you want to see.",
             required: false
         }
-    ]
+    ],
+    cooldown: Utility.cooldown.avatar
 }

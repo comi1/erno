@@ -53,8 +53,10 @@ module.exports = async (client) => {
                     });
                 }
 
-                if (execute) {
-                    await execute(client);
+                if (addon.execute) {
+                    const { name, execute } = addon.execute;
+                    if (!execute || !name) return;
+                    execute(client);
                 }
 
                 if (messages && typeof messages == 'object') {

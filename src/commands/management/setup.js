@@ -39,4 +39,5 @@ module.exports = {
     usage: "setup",
     aliases: [],
     options: [],
+    cooldown: Utility.cooldown.setup
 }

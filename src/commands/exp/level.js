@@ -69,7 +69,8 @@ module.exports = {
             type: 6,
             required: false
         }
-    ]
+    ],
+    cooldown: Utility.cooldown.level
 };
 
 function getProgressBar(progress, totalWidth = 20) {

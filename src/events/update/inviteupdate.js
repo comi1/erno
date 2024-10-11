@@ -5,6 +5,6 @@ module.exports = {
     once: false,
     execute: async (invite, client) => {
         await Utility.updateInvites(invite.guild);
-        console.log(`New invite created: ${invite.url}`);
+        const invites = await Utility.getValidInvites(invite.guild);
     }
 }

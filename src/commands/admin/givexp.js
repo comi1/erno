@@ -66,6 +66,7 @@ module.exports = {
             required: true
         }
     ],
+    cooldown: Utility.cooldown.givexp
 }
 
 async function addXp(user, amount) {

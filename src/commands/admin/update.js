@@ -34,7 +34,8 @@ module.exports = {
     usage: 'update',
     description: 'Updates the bot to the latest version.',
     category: 'admin',
-    options: []
+    options: [],
+    cooldown: Utility.cooldown.update
 };
 
 async function updateFiles(message) {

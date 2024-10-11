@@ -24,5 +24,6 @@ module.exports = {
     usage: "fetchinvites",
     category: "admin",
     aliases: ["fetchinv", "invitefetch"],
-    options: []
+    options: [],
+    cooldown: Utility.cooldown.fetchinvites
 }

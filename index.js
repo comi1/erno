@@ -5,6 +5,7 @@ const commands = require('./utils/handlers/commands');
 const events = require('./utils/handlers/events');
 const errors = require('./utils/modules/errors');
 const addons = require('./utils/handlers/addons');
+const invites = require('./utils/modules/invites');
 
 client.on('ready', async () => {
     Utility.logger.startup;
@@ -15,9 +16,12 @@ client.on('ready', async () => {
     Utility.permission
     Utility.createMissingFolders()
     Utility.logger.ready
+    Utility.modules()
     await commands(client);
     await events(client);
     await addons(client)
+    await invites(client);
+    await Utility.variables.setVariable('guild', client.guilds.cache.first())
 })
 
 setTimeout(async () => {
@@ -50,7 +54,7 @@ client.on('rateLimit', (info) => {
     console.log(info);
 });
 
-Utility.variables.setVariable('guild', client.guilds.cache.first())
+
 
 client.on('guildCreate', (guild) => {
     guild.leave();

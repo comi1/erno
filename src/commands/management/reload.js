@@ -163,5 +163,6 @@ module.exports = {
                 { name: 'All', value: 'all' }
             ]
         }
-    ]
+    ],
+    cooldown: Utility.cooldown.reload
 };

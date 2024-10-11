@@ -147,5 +147,7 @@ if (displayType === 'categories') {
     description: 'Display bot commands',
     usage: 'help || help [command]',
     category: 'utils',
+    options: [],
     aliases: [],
+    cooldown: Utility.cooldown.help
 }

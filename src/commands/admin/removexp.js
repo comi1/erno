@@ -66,6 +66,7 @@ module.exports = {
             required: true
         }
     ],
+    cooldown: Utility.cooldown.removexp
 };
 
 async function removeXp(user, amount) {

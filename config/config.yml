@@ -43,6 +43,19 @@ Modules: # is Enabled?
 Help:
   Type: "categories"
 
+Tickets:
+  Name: "ticket-{user-username}"
+  Category: "─────﹒HALLWAY﹒─────"
+  Staff: 
+    - 'Admin'
+  MentionUser: true
+  MentionStaff: true
+  Buttons: 
+    Close: 
+      label: "Close"
+      emoji: "🗑️"
+      style: 1
+
 ##############################
 #      Channels & Logs       #
 ##############################
@@ -53,6 +66,18 @@ Help:
 #        Join & Leave          #
 Welcome: "：꒰👋꒱﹒welcome"
 Leave: "：꒰🙌꒱﹒goodbye"
+InviteChannel: "：꒰👋꒱﹒welcome"
+
+JoinRoles:
+  enabled: true
+  roles:
+    - Member
+
+Verification:
+  enabled: true
+  disabled_dm_notification: "：꒰✅꒱﹒verify"
+  verification_logs: '：꒰📩꒱﹒invites'
+  verified_role: "Verified"
 
 
 #         Moderation           #
@@ -64,3 +89,16 @@ MessageUpdate: "：꒰👋꒱﹒modlogs"
 ChannelCrete: ""
 ChannelDelete: ""
 ChannelUpdate: ""
+
+##############################
+#      Antilink System       #
+##############################
+
+Antilink:
+  enabled: true
+  whitelist_channels: []
+  whitelist_users: []
+  whitelist_roles: []
+  whitelisted_domains: 
+    - "google.com"
+

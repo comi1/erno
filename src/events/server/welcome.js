@@ -1,12 +1,10 @@
 const Utility = require("../../../utils/modules/Utility");
-
 module.exports = {
     name: 'guildMemberAdd',
     once: false,
     async execute(member, client) {
         const channel = Utility.config.Welcome;
         const message = Utility.messages.Welcome;
-
         let memberCount = member.guild.members.cache.filter(u => !u.user.bot).size;
 
         let countAdd;
@@ -19,7 +17,6 @@ module.exports = {
         } else {
             countAdd = 'th';
         }
-
 
         const fixMessage = message
             .replace(/{user-username}/g, member.user.username)
